@@ -11,8 +11,10 @@ function UDPServiceDiscovery(opts) {
         return new UDPServiceDiscovery(opts);
     }
 
+    this.host = '';
+
+    this.status = 'INITIALIZING';
     this.emit('statusChanged', this.status);
-    this.status = "INITIALIZING";
 
     opts = opts || {};
 
@@ -133,8 +135,11 @@ UDPServiceDiscovery.prototype.broadcast = function broadcast(name, ip, port, msg
             broadcastAddress = getBroadcastAddress(host, netmask);
 
             if (host !== service.host) {
+                this.host = host;
+                console.log('ip address changed', this.host);
                 service.host = host;
                 announceMessage = new Buffer(JSON.stringify(service));
+                this.status = 'IP_CHANGED';
                 this.emit('statusChanged', this.status);
             }
 
@@ -146,7 +151,7 @@ UDPServiceDiscovery.prototype.broadcast = function broadcast(name, ip, port, msg
                         throw err;
                     } else {
                         if (this.status !== 'BROADCASTING') {
-                            this.status = "BROADCASTING";
+                            this.status = 'BROADCASTING';
                             this.emit('statusChanged', this.status);
                         }
                     }
@@ -154,7 +159,7 @@ UDPServiceDiscovery.prototype.broadcast = function broadcast(name, ip, port, msg
             }
         } else {
             // Not connected
-            this.status = "NOT_CONNECTED";
+            this.status = 'NOT_CONNECTED';
             this.emit('statusChanged', this.status);
         }
     });
@@ -242,8 +247,7 @@ function getLocalIPAndNetmask() {
 }
 
 function getBroadcastAddress(ip, netmask) {
-    console.log(ip, netmask);
+    // console.log(ip, netmask);
     var block = new Netmask(ip + "/" + netmask);
-
     return block.broadcast;
 }
