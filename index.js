@@ -15,7 +15,6 @@ function UDPServiceDiscovery(opts) {
     this.status = "INITIALIZING";
 
     this.opts = opts || {};
-    var self = this;
 
     this.broadcasterPort = typeof this.opts.port === 'undefined' ? 12345 : this.opts.port;
     this.broadcasterAddress = typeof this.opts.address === 'undefined' ? null : this.opts.address;
@@ -67,11 +66,11 @@ function UDPServiceDiscovery(opts) {
 
     this.socket.on('error', e => {
         if (e.code === 'EADDRINUSE') {
-            self._log('UDPServiceDiscovery address/port ' + e.address + ':' + e.port + ' in use, retrying in ' + this.retryInterval + ' ms');
+            this._log('UDPServiceDiscovery address/port ' + e.address + ':' + e.port + ' in use, retrying in ' + this.retryInterval + ' ms');
 
             setTimeout(this.tryBinding.bind(this), this.retryInterval);
         } else {
-            self._log('UDPServiceDiscovery SocketError: ' + e);
+            this._log('UDPServiceDiscovery SocketError: ' + e);
         }
     });
 
@@ -84,14 +83,14 @@ function UDPServiceDiscovery(opts) {
         var address = this.socket.address();
 
         if (this.listenOnce) {
-            self._log('UDPServiceDiscovery listening (once) on ' + address.address + ':' + address.port);
+            this._log('UDPServiceDiscovery listening (once) on ' + address.address + ':' + address.port);
         } else {
-            self._log('UDPServiceDiscovery listening (forever) on ' + address.address + ':' + address.port);
+            this._log('UDPServiceDiscovery listening (forever) on ' + address.address + ':' + address.port);
         }
     });
 
     this.socket.on('close', () => {
-        self._log('UDPServiceDiscovery Closing socket.');
+        this._log('UDPServiceDiscovery Closing socket.');
     });
 }
 
