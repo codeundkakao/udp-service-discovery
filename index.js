@@ -3,6 +3,9 @@ var dgram = require('dgram');
 var EventEmitter = require('events').EventEmitter;
 var Netmask = require('netmask').Netmask;
 
+// named export for typescript users
+exports.newUDPServiceDiscovery = UDPServiceDiscovery;
+// default export for node
 module.exports = UDPServiceDiscovery;
 
 function UDPServiceDiscovery(opts) {
@@ -77,8 +80,8 @@ function UDPServiceDiscovery(opts) {
     this.socket.on('listening', () => {
         this.socket.setBroadcast(true);
 
-        // self.socket.setMulticastLoopback(true);
-        // self.socket.addMembership(state.address, state.host);
+        // this.socket.setMulticastLoopback(true);
+        // this.socket.addMembership(state.address, state.host);
 
         var address = this.socket.address();
 
@@ -129,12 +132,10 @@ UDPServiceDiscovery.prototype.broadcast = function broadcast(name, ip, port, msg
 
     announceMessage = new Buffer(JSON.stringify(service));
 
-    var self = this;
-
     announce = (() => {
         if (repeat != 0 && runs >= repeat) {
             clearInterval(interval);
-            self._log('Finished ' + repeat + ' broadcasts.');
+            this._log('Finished ' + repeat + ' broadcasts.');
             return;
         }
 
@@ -142,7 +143,7 @@ UDPServiceDiscovery.prototype.broadcast = function broadcast(name, ip, port, msg
         if (mask.length > 0 && mask[0].length > 0) {
             netmask = mask[0][1];
             host = mask[0][0];
-            broadcastAddress = getBroadcastAddress(self, host, netmask);
+            broadcastAddress = getBroadcastAddress(this, host, netmask);
 
             if (host !== service.host) {
                 service.host = host;
@@ -154,7 +155,7 @@ UDPServiceDiscovery.prototype.broadcast = function broadcast(name, ip, port, msg
                 this.socket.send(announceMessage, 0, announceMessage.length, this.broadcasterPort, broadcastAddress, (err, bytes) => {
                     runs++;
                     if (err) {
-                        self._log("UDP - Error announcing!", err);
+                        this._log("UDP - Error announcing!", err);
                         throw err;
                     } else {
                         if (this.status !== 'BROADCASTING') {
